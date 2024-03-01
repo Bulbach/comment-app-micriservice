@@ -21,46 +21,87 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Контроллер для обработки запросов, связанных с комментариями.
+ * Обрабатывает HTTP-запросы и вызывает соответствующие методы сервиса комментариев.
+ */
 @RestController
 @RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
-    private final CommentServiceImpl commentService;
+    private final CommentService<RequestCommentDto, ResponseCommentDto> commentService;
 
+    /**
+     * Обрабатывает GET-запрос для получения комментария по идентификатору.
+     *
+     * @param id Идентификатор комментария.
+     * @return Ответ с кодом статуса 200 и DTO комментария.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ResponseCommentDto> getCommentById(@PathVariable Long id) {
         ResponseCommentDto comment = commentService.findById(id);
         return ResponseEntity.ok(comment);
     }
 
+    /**
+     * Обрабатывает POST-запрос для создания нового комментария.
+     *
+     * @param comment DTO запроса на создание комментария.
+     * @return Ответ с кодом статуса 201 и DTO созданного комментария.
+     */
     @PostMapping
     public ResponseEntity<ResponseCommentDto> createComment(@RequestBody RequestCommentDto comment) {
         ResponseCommentDto createdComment = commentService.create(comment);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }
 
+    /**
+     * Обрабатывает PUT-запрос для обновления комментария.
+     *
+     * @param comment DTO запроса на обновление комментария.
+     * @return Ответ с кодом статуса 200 и DTO обновленного комментария.
+     */
     @PutMapping("/{commentId}")
     public ResponseEntity<ResponseCommentDto> updateComment(@RequestBody RequestCommentDto comment) {
         ResponseCommentDto updatedComment = commentService.update(comment);
         return ResponseEntity.ok(updatedComment);
     }
 
+    /**
+     * Обрабатывает DELETE-запрос для удаления комментария по идентификатору.
+     * @param commentId Идентификатор комментария.
+     * @return Ответ с кодом статуса 204 без тела ответа.
+     */
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long newsId, @PathVariable Long commentId) {
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
         commentService.delete(commentId);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Обрабатывает GET-запрос для получения всех комментариев с пагинацией.
+     *
+     * @param page Номер страницы.
+     * @param size Размер страницы.
+     * @return Ответ с кодом статуса 200 и список DTO комментариев.
+     */
     @GetMapping
     public ResponseEntity<List<ResponseCommentDto>> getAllComments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        List<ResponseCommentDto> comments = commentService.findAll(page, size);
+        List<ResponseCommentDto> comments = (List<ResponseCommentDto>) commentService.findAll(page, size);
         return ResponseEntity.ok(comments);
     }
 
-
+    /**
+     * Обрабатывает GET-запрос для получения всех комментариев к новости с пагинацией.
+     *
+     * @param newsId Идентификатор новости.
+     * @param page Номер страницы.
+     * @param size Размер страницы.
+     * @return Ответ с кодом статуса 200 и список DTO комментариев.
+     */
     @GetMapping("/news/{newsId}")
     public ResponseEntity<List<ResponseCommentDto>> getAllCommentsForNews(@PathVariable Long newsId,
                                                                           @RequestParam(defaultValue = "0") int page,
@@ -69,11 +110,4 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
-    @Value(value = "${spring.cache.algorithm}")
-    String s;
-
-    @PostConstruct
-    public void post(){
-        System.out.println(s);
-    }
 }

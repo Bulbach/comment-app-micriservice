@@ -14,13 +14,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Класс, представляющий реализацию интерфейса {@link CommentService} для работы с комментариями.
+ * Используется для выполнения операций над сущностями {@link Comment} и преобразования между DTO.
+ */
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService<RequestCommentDto, ResponseCommentDto> {
@@ -29,6 +31,13 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
     @Qualifier("commentMapperImpl")
     private final CommentMapper mapper;
 
+    /**
+     * Получает список всех комментариев с пагинацией.
+     *
+     * @param page Номер страницы.
+     * @param size Размер страницы.
+     * @return Список DTO ответов с информацией о комментариях.
+     */
     @Override
     public List<ResponseCommentDto> findAll(int page, int size) {
 
@@ -39,6 +48,13 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Получает комментарий по идентификатору.
+     *
+     * @param id Идентификатор комментария.
+     * @return DTO ответа с информацией о комментарии.
+     * @throws RuntimeException Если комментарий с указанным идентификатором не найден.
+     */
     @Override
     @CustomCachableGet
     public ResponseCommentDto findById(Long id) {
@@ -52,6 +68,13 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
         return mapper.toDto(comment);
     }
 
+    /**
+     * Создает новый комментарий.
+     *
+     * @param item DTO запроса на создание комментария.
+     * @return DTO ответа с информацией о созданном комментарии.
+     * @throws RuntimeException Если переданный объект равен null.
+     */
     @Override
     @CustomCachebleCreate
     public ResponseCommentDto create(RequestCommentDto item) {
@@ -65,6 +88,13 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
         return mapper.toDto(saveComment);
     }
 
+    /**
+     * Обновляет существующий комментарий.
+     *
+     * @param item DTO запроса на обновление комментария.
+     * @return DTO ответа с информацией об обновленном комментарии.
+     * @throws RuntimeException Если переданный объект равен null или комментарий с указанным идентификатором не найден.
+     */
     @Override
     @CustomCachebleUpdate
     public ResponseCommentDto update(RequestCommentDto item) {
@@ -79,6 +109,12 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
         return mapper.toDto(commentById);
     }
 
+    /**
+     * Удаляет комментарий по идентификатору.
+     *
+     * @param id Идентификатор комментария.
+     * @throws RuntimeException Если комментарий с указанным идентификатором не найден.
+     */
     @Override
     @CustomCachebleDelete
     public void delete(Long id) {
@@ -91,7 +127,14 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
         repository.delete(commentById);
     }
 
-
+    /**
+     * Получает список всех комментариев для определенной новости с пагинацией.
+     *
+     * @param newsId Идентификатор новости.
+     * @param page   Номер страницы.
+     * @param size   Размер страницы.
+     * @return Список DTO ответов с информацией о комментариях.
+     */
     @Override
     public List<ResponseCommentDto> getAllCommentsForNews(Long newsId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
