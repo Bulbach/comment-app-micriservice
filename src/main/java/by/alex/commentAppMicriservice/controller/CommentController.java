@@ -3,10 +3,7 @@ package by.alex.commentAppMicriservice.controller;
 import by.alex.commentAppMicriservice.dto.RequestCommentDto;
 import by.alex.commentAppMicriservice.dto.ResponseCommentDto;
 import by.alex.commentAppMicriservice.service.CommentService;
-import by.alex.commentAppMicriservice.service.impl.CommentServiceImpl;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,6 +67,7 @@ public class CommentController {
 
     /**
      * Обрабатывает DELETE-запрос для удаления комментария по идентификатору.
+     *
      * @param commentId Идентификатор комментария.
      * @return Ответ с кодом статуса 204 без тела ответа.
      */
@@ -98,8 +96,8 @@ public class CommentController {
      * Обрабатывает GET-запрос для получения всех комментариев к новости с пагинацией.
      *
      * @param newsId Идентификатор новости.
-     * @param page Номер страницы.
-     * @param size Размер страницы.
+     * @param page   Номер страницы.
+     * @param size   Размер страницы.
      * @return Ответ с кодом статуса 200 и список DTO комментариев.
      */
     @GetMapping("/news/{newsId}")
@@ -110,4 +108,20 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
+    /**
+     * Обрабатывает GET-запрос для получения всех комментариев используя расширенный поиск с пагинацией.
+     *
+     * @param search Фрагмент строки для поиска.
+     * @param page   Номер страницы.
+     * @param size   Размер страницы.
+     * @return Ответ с кодом статуса 200 и список DTO комментариев.
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<ResponseCommentDto>> fullSearch(@PathVariable String search,
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "10") int size) {
+
+        List<ResponseCommentDto> comments = commentService.search(search, page, size);
+        return ResponseEntity.ok(comments);
+    }
 }

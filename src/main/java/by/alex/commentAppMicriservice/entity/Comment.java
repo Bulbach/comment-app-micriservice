@@ -6,6 +6,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
  * Используется для сопоставления с таблицей "comments" в базе данных.
  */
 @Data
+@Indexed
 @Entity(name = "comments")
 public class Comment {
 
@@ -36,6 +39,7 @@ public class Comment {
      * Текст комментария.
      * Обязательное поле, максимальная длина 500 символов.
      */
+    @FullTextField(analyzer = "english")
     @Column(nullable = false, length = 500)
     private String text;
 
@@ -43,6 +47,7 @@ public class Comment {
      * Имя пользователя, оставившего комментарий.
      * Обязательное поле.
      */
+    @FullTextField(analyzer = "english")
     @Column(nullable = false)
     private String username;
 

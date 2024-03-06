@@ -10,8 +10,15 @@ import by.alex.commentAppMicriservice.entity.Comment;
 import by.alex.commentAppMicriservice.mapper.CommentMapper;
 import by.alex.commentAppMicriservice.repository.CommentRepository;
 import by.alex.commentAppMicriservice.service.CommentService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.search.engine.search.query.SearchResult;
+import org.hibernate.search.engine.search.sort.dsl.SearchSortFactory;
+import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,6 +37,20 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
     private final CommentRepository repository;
     @Qualifier("commentMapperImpl")
     private final CommentMapper mapper;
+
+    private final EntityManagerFactory entityManagerFactory;
+
+    @Value("${search.field.username}")
+    private String FIELD_USERNAME;
+
+    @Value("${search.field.text}")
+    private String FIELD_TEXT;
+
+    @Value("${search.boost.username}")
+    private float USERNAME_BOOST_FACTOR;
+
+    @Value("${search.boost.text}")
+    private float TEXT_BOOST_FACTOR;
 
     /**
      * Получает список всех комментариев с пагинацией.
@@ -143,5 +164,36 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
                 .stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Метод для получения всех комментариев используя расширенный поиск с пагинацией.
+     *
+     * @param search Фрагмент строки для поиска.
+     * @param page   Номер страницы.
+     * @param size   Размер страницы.
+     * @return Возвращает коллекцию ResponseCommentDto.
+     */
+    @Override
+    public List<ResponseCommentDto> search(String search, int page, int size) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        SearchSession searchSession = Search.session(entityManager);
+
+        SearchResult<Comment> searchResult = searchSession.search(Comment.class)
+                .where(comment -> comment
+                        .bool()
+                        .with(b -> {
+                            b.must(comment.matchAll());
+                            b.must(comment.match()
+                                    .field(FIELD_USERNAME)
+                                    .boost(USERNAME_BOOST_FACTOR)
+                                    .field(FIELD_TEXT)
+                                    .boost(TEXT_BOOST_FACTOR)
+                                    .matching(search));
+                        }))
+                .sort(SearchSortFactory::score)
+                .fetch(page, size);
+
+        return searchResult.hits().stream().map(mapper::toDto).collect(Collectors.toList());
     }
 }

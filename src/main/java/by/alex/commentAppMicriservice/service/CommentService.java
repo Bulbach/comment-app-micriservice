@@ -2,6 +2,7 @@ package by.alex.commentAppMicriservice.service;
 
 import java.util.Collection;
 import java.util.List;
+
 /**
  * Интерфейс сервиса для работы с комментариями.
  * Определяет основные операции для работы с ними.
@@ -9,7 +10,7 @@ import java.util.List;
  * @param <K> Тип DTO запроса на создание или обновление комментария.
  * @param <T> Тип DTO комментария.
  */
-public interface CommentService <K,T>{
+public interface CommentService<K, T> {
 
     /**
      * Получает список всех комментариев с пагинацией.
@@ -60,4 +61,15 @@ public interface CommentService <K,T>{
      * @return Список DTO комментариев.
      */
     List<T> getAllCommentsForNews(Long newsId, int page, int size);
+
+    /**
+     * Получает список всех комментариев используя расширенный поиск с пагинацией.
+     *
+     * @param search Фрагмент строки для поиска.
+     * @param page   Номер страницы.
+     * @param size   Размер страницы.
+     * @return Список DTO комментариев.
+     */
+    List<T> search(String search, int page, int size);
+
 }
