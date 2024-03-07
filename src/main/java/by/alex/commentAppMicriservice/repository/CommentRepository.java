@@ -23,4 +23,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
      * @return Список комментариев, связанных с новостью.
      */
     List<Comment> findByNewsId(Long newsId, Pageable pageable);
+
+    /**
+     * Находит комментарии, связанные с определенной новостью и id комментария.
+     *
+     * @param newsId   Идентификатор новости, к которой относятся комментарии.
+     * @param id Идентификатор определяющий комментарий.
+     * @return  комментарий по идентификатору, связанный с новостью.
+     */
+    Comment findByNewsIdAndId(Long newsId,Long id);
 }

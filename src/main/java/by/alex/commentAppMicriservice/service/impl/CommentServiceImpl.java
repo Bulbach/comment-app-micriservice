@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class CommentServiceImpl implements CommentService<RequestCommentDto, ResponseCommentDto> {
+public class CommentServiceImpl implements CommentService<ResponseCommentDto, RequestCommentDto> {
 
     private final CommentRepository repository;
     @Qualifier("commentMapperImpl")
@@ -167,6 +167,19 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
     }
 
     /**
+     * Находит комментарии, связанные с определенной новостью и id комментария.
+     *
+     * @param newsId   Идентификатор новости, к которой относятся комментарии.
+     * @param commentId Идентификатор определяющий комментарий.
+     * @return ResponseCommentDto по идентификатору, связанный с новостью.
+     */
+    @Override
+    public ResponseCommentDto getCommentByNewsIdAndCommentId(Long newsId, Long commentId) {
+
+        return mapper.toDto(repository.findByNewsIdAndId(newsId, commentId));
+    }
+
+    /**
      * Метод для получения всех комментариев используя расширенный поиск с пагинацией.
      *
      * @param search Фрагмент строки для поиска.
@@ -196,4 +209,5 @@ public class CommentServiceImpl implements CommentService<RequestCommentDto, Res
 
         return searchResult.hits().stream().map(mapper::toDto).collect(Collectors.toList());
     }
+
 }

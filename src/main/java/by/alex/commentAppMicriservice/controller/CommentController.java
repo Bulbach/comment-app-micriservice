@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentController {
 
-    private final CommentService<RequestCommentDto, ResponseCommentDto> commentService;
+    private final CommentService<ResponseCommentDto, RequestCommentDto> commentService;
 
     /**
      * Обрабатывает GET-запрос для получения комментария по идентификатору.
@@ -106,6 +106,14 @@ public class CommentController {
                                                                           @RequestParam(defaultValue = "10") int size) {
         List<ResponseCommentDto> comments = commentService.getAllCommentsForNews(newsId, page, size);
         return ResponseEntity.ok(comments);
+    }
+
+    @GetMapping("/news/{newsId}/comments/{commentId}")
+    public ResponseEntity<ResponseCommentDto> getCommentByNewsIdAndCommentId(@PathVariable("newsId") Long newsId,
+                                                                             @PathVariable("commentId") Long commentId)
+    {
+        ResponseCommentDto commentByIdNewsAndComment = commentService.getCommentByNewsIdAndCommentId(newsId, commentId);
+        return ResponseEntity.ok(commentByIdNewsAndComment);
     }
 
     /**

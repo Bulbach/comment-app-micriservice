@@ -10,7 +10,7 @@ import java.util.List;
  * @param <K> Тип DTO запроса на создание или обновление комментария.
  * @param <T> Тип DTO комментария.
  */
-public interface CommentService<K, T> {
+public interface CommentService<T, K> {
 
     /**
      * Получает список всех комментариев с пагинацией.
@@ -72,4 +72,5 @@ public interface CommentService<K, T> {
      */
     List<T> search(String search, int page, int size);
 
+    T getCommentByNewsIdAndCommentId(Long newsId, Long commentId);
 }
