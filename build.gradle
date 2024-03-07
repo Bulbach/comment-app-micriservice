@@ -20,6 +20,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -33,6 +34,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.1'
     implementation group: 'org.hibernate.search', name: 'hibernate-search-mapper-orm-orm6', version: '6.2.3.Final'
     implementation group: 'org.hibernate.search', name: 'hibernate-search-backend-lucene', version: '6.2.3.Final'
+    implementation 'by.bulbach:exception-spring-boot-starter:0.0.1-SNAPSHOT'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -51,4 +53,16 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+jar{
+    manifest(({
+        attributes(
+                'Main-Class': 'by.alex.commentAppMicriservice.CommentAppMicroserviceApplication'
+        )
+    } as groovy.lang.Closure<?>))
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
